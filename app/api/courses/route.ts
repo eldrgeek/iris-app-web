@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { config } from "@/lib/config";
 import { createServiceClient } from "@/lib/supabase";
 
@@ -22,12 +23,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
 
-    // In production, get userId from Clerk auth() here
-    // const { userId } = auth();
-    // if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    // TODO: replace 'demo_user' with actual userId from Clerk
-    const userId = "demo_user";
+    let userId: string;
+    if (config.clerk.enabled) {
+      const { userId: clerkUserId } = auth();
+      if (!clerkUserId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      userId = clerkUserId;
+    } else {
+      userId = "demo_user";
+    }
 
     const supabase = createServiceClient();
     if (!supabase) {

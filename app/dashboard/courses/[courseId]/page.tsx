@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import { IrisWidget, IrisWidgetPlaceholder } from "@/components/iris-widget";
 import { config } from "@/lib/config";
 import { createServiceClient, type Course, type CurriculumArtifact } from "@/lib/supabase";
@@ -46,6 +48,14 @@ export default async function CourseWorkspacePage({ params }: Props) {
   let course: Course = DEMO_COURSE;
   let artifacts: CurriculumArtifact[] = DEMO_ARTIFACTS;
 
+  // Resolve the authenticated user ID (real Clerk ID when enabled, demo fallback otherwise)
+  let userId = "demo_user";
+  if (!isDemo && config.clerk.enabled) {
+    const { userId: clerkUserId } = auth();
+    if (!clerkUserId) return notFound();
+    userId = clerkUserId;
+  }
+
   if (!isDemo) {
     const supabase = createServiceClient();
     if (supabase) {
@@ -57,12 +67,12 @@ export default async function CourseWorkspacePage({ params }: Props) {
           .eq("course_id", courseId)
           .order("created_at", { ascending: false }),
       ]);
-      if (courseData) course = courseData as Course;
+      // Gap B: ownership check — prevent cross-user reads via service-role client
+      if (!courseData || courseData.user_id !== userId) return notFound();
+      course = courseData as Course;
       if (artifactData) artifacts = artifactData as CurriculumArtifact[];
     }
   }
-
-  const userId = isDemo ? "demo_user" : "user_placeholder";
   const remainingMinutes = 30;
 
   return (

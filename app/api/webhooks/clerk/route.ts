@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { Webhook } from "svix";
 import { config } from "@/lib/config";
 import { createServiceClient } from "@/lib/supabase";
+import { getStripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
@@ -65,16 +66,40 @@ export async function POST(req: Request) {
     const displayName =
       [data.first_name, data.last_name].filter(Boolean).join(" ") || null;
 
-    await supabase.from("users").upsert(
-      {
-        id: data.id,
-        email,
-        display_name: displayName,
-        tier: "listener",
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "id", ignoreDuplicates: false }
-    );
+    // On new signup, create a Stripe customer and store the ID (skip if Stripe not configured)
+    let stripeCustomerId: string | null = null;
+    if (type === "user.created" && config.stripe.enabled) {
+      try {
+        const stripe = getStripe();
+        if (stripe) {
+          const customer = await stripe.customers.create({
+            email: email || undefined,
+            name: displayName || undefined,
+            metadata: { clerk_user_id: data.id },
+          });
+          stripeCustomerId = customer.id;
+        }
+      } catch (err) {
+        // Non-fatal: log but don't fail the webhook
+        console.error("Stripe customer creation failed:", err);
+      }
+    }
+
+    const upsertData: Record<string, unknown> = {
+      id: data.id,
+      email,
+      display_name: displayName,
+      tier: "listener",
+      updated_at: new Date().toISOString(),
+    };
+    if (stripeCustomerId) {
+      upsertData.stripe_customer_id = stripeCustomerId;
+    }
+
+    await supabase.from("users").upsert(upsertData, {
+      onConflict: "id",
+      ignoreDuplicates: false,
+    });
   }
 
   if (type === "user.deleted") {

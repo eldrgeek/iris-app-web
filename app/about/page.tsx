@@ -12,7 +12,7 @@ export default function AboutPage() {
           <h2 className="text-xl font-medium mb-4">The Curriculum Lab</h2>
           <p className="text-text-mid mb-4">
             Iris is a department of{" "}
-            <a href="https://siliconchildren.org">Silicon Children University</a> — an
+            <a href="https://siliconchildren.com">Silicon Children University</a> — an
             institution built on the premise that the most interesting intellectual work
             happening right now is the work humans and AIs do together, as genuine
             collaborators.

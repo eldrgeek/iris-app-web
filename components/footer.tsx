@@ -6,7 +6,7 @@ export function Footer() {
       <p className="text-xs text-text-dim">
         Iris &mdash; a department of{" "}
         <a
-          href="https://siliconchildren.org"
+          href="https://siliconchildren.com"
           className="text-text-dim hover:text-accent"
         >
           Silicon Children University

@@ -18,7 +18,7 @@ export function Nav({ showAuth = true }: NavProps) {
           <span className="text-xs tracking-wide">
             a department of{" "}
             <a
-              href="https://siliconchildren.org"
+              href="https://siliconchildren.com"
               className="text-text-dim hover:text-accent"
             >
               Silicon Children University

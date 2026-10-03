@@ -32,6 +32,7 @@ export default function RootLayout({
           src="/vendor/soma-feedback/soma-feedback.js"
           data-endpoint="/.netlify/functions/soma-feedback"
           data-site="iris-app-web"
+          data-no-google=""
           strategy="lazyOnload"
         />
       </body>

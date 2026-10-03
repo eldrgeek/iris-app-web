@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { ClerkProviderWrapper } from "@/components/clerk-provider-wrapper";
 
@@ -19,8 +20,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* SOMA feedback chip, same-origin (SOMA/standards/soma-feedback-proxy):
+            assets in public/vendor/soma-feedback/, submissions through
+            netlify/functions/soma-feedback.js. */}
+        <link rel="stylesheet" href="/vendor/soma-feedback/soma-feedback.css" />
+      </head>
       <body>
         <ClerkProviderWrapper>{children}</ClerkProviderWrapper>
+        <Script
+          src="/vendor/soma-feedback/soma-feedback.js"
+          data-endpoint="/.netlify/functions/soma-feedback"
+          data-site="iris-app-web"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );

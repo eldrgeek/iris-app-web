@@ -122,7 +122,7 @@ export default async function CourseWorkspacePage({ params }: Props) {
           style={{ borderColor: "var(--rule)", background: "var(--bg-alt)", color: "var(--text-mid)" }}
         >
           <strong>Demo mode.</strong> This is a sample workspace showing the course workspace
-          structure. The Iris widget below is live — you can talk to Iris. With Clerk + Supabase
+          structure.{config.elevenLabs.agentId ? " The Iris widget below is live — you can talk to Iris." : ""} With Clerk + Supabase
           configured, sessions will persist and artifacts will accumulate here.
         </div>
       )}

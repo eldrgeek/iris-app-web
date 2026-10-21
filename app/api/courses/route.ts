@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { config } from "@/lib/config";
 import { createServiceClient } from "@/lib/supabase";
+import { requireUser } from "@/lib/api-auth";
 
 export async function POST(req: Request) {
-  if (!config.supabase.enabled || !config.clerk.enabled) {
+  // Auth before anything else: demo mode -> 403 (body carries demo: true so
+  // the new-course page can send the visitor to the demo workspace),
+  // signed out -> 401.
+  const user = await requireUser();
+  if (!user.ok) return user.response;
+
+  if (!config.supabase.enabled) {
     return NextResponse.json(
-      {
-        error:
-          "Service not configured. Add Supabase and Clerk credentials to create courses.",
-        id: "demo",
-      },
-      { status: 200 } // return 200 so demo mode redirects to /dashboard/courses/demo
+      { error: "Database not configured. Add Supabase credentials to create courses." },
+      { status: 503 }
     );
   }
 
@@ -21,17 +23,6 @@ export async function POST(req: Request) {
 
     if (!title?.trim()) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
-    }
-
-    let userId: string;
-    if (config.clerk.enabled) {
-      const { userId: clerkUserId } = await auth();
-      if (!clerkUserId) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-      userId = clerkUserId;
-    } else {
-      userId = "demo_user";
     }
 
     const supabase = createServiceClient();
@@ -49,7 +40,7 @@ export async function POST(req: Request) {
     const { data, error } = await supabase
       .from("courses")
       .insert({
-        user_id: userId,
+        user_id: user.value,
         title: title.trim(),
         description: description?.trim() || null,
         seed_context: seedContext || null,

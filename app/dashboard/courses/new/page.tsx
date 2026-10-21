@@ -23,6 +23,12 @@ export default function NewCoursePage() {
         body: JSON.stringify({ title, description, forWho }),
       });
       const data = await res.json();
+      // Demo mode: the API refuses to write (403, demo: true), so show the
+      // sample workspace instead of an error.
+      if (res.status === 403 && data.demo) {
+        router.push("/dashboard/courses/demo");
+        return;
+      }
       if (!res.ok) throw new Error(data.error ?? "Failed to create course");
       router.push(`/dashboard/courses/${data.id}`);
     } catch (err: unknown) {

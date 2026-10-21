@@ -30,6 +30,12 @@ export const config = {
   appUrl:
     process.env.NEXT_PUBLIC_APP_URL ?? "https://iris-app.netlify.app",
   elevenLabs: {
-    agentId: "agent_3001ks381kjsf8xsr9a61940gt7d",
+    // Empty means "voice offline": the widget renders a quiet notice and
+    // makes no ElevenLabs request. The previous hard-coded agent
+    // (agent_3001ks381kjsf8xsr9a61940gt7d) was deleted from ElevenLabs and
+    // returns 404 agent_not_found (bead es-hk5, 2026-10-21). Recreating an
+    // agent is an account decision for Mike/Eric; set
+    // NEXT_PUBLIC_ELEVENLABS_AGENT_ID in Netlify once one exists.
+    agentId: process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID ?? "",
   },
 };

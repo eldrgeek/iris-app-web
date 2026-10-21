@@ -1,0 +1,29 @@
+name: CI
+
+# Added 2026-10-21 (bead es-hk5): the repo had no checks, so the estate's
+# merge gate (pr-merge-green) had nothing to verify. This runs the typecheck,
+# the production build, and the API auth check against a local server in
+# demo mode (no Clerk keys), where every mutating route must answer 403.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit -p .
+      - run: npm run build
+      - name: API auth check (demo mode)
+        run: |
+          npx next start -p 3000 &
+          for i in $(seq 1 30); do curl -sf -o /dev/null http://localhost:3000/ && break; sleep 1; done
+          npm run test:api-auth -- http://localhost:3000

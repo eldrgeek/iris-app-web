@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { config } from "@/lib/config";
 import { getStripe } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase";
+import { requireUser } from "@/lib/api-auth";
 
-export async function POST(req: Request) {
+export async function POST() {
+  // Auth before anything else: demo mode -> 403, signed out -> 401.
+  const user = await requireUser();
+  if (!user.ok) return user.response;
+  const userId = user.value;
+
   if (!config.stripe.enabled) {
     return NextResponse.json(
       { error: "Payments not configured." },
@@ -18,17 +23,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    let userId: string;
-    if (config.clerk.enabled) {
-      const { userId: clerkUserId } = await auth();
-      if (!clerkUserId) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-      userId = clerkUserId;
-    } else {
-      userId = "demo_user";
-    }
-
     const supabase = createServiceClient();
     if (!supabase) {
       return NextResponse.json({ error: "Database unavailable" }, { status: 503 });

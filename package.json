@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:api-auth": "node scripts/check-api-auth.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.19",

@@ -12,9 +12,14 @@ const clerkEnabled =
 const demoMiddleware = (_req: any) => NextResponse.next();
 
 export default clerkEnabled
-  ? clerkMiddleware((auth, req) => {
-      if (isProtected(req)) auth().protect();
-    })
+  ? clerkMiddleware(
+      async (auth, req) => {
+        if (isProtected(req)) await auth.protect();
+      },
+      // Send signed-out visitors to this app's own /sign-in page, not the
+      // Clerk-hosted Account Portal (the ClerkProvider props are client-only).
+      { signInUrl: "/sign-in", signUpUrl: "/sign-up" }
+    )
   : demoMiddleware;
 
 export const config = {

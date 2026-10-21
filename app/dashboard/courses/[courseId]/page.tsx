@@ -38,11 +38,11 @@ const DEMO_ARTIFACTS: CurriculumArtifact[] = [
 ];
 
 interface Props {
-  params: { courseId: string };
+  params: Promise<{ courseId: string }>;
 }
 
 export default async function CourseWorkspacePage({ params }: Props) {
-  const { courseId } = params;
+  const { courseId } = await params;
   const isDemo = courseId === "demo" || !config.supabase.enabled || !config.clerk.enabled;
 
   let course: Course = DEMO_COURSE;
@@ -51,7 +51,7 @@ export default async function CourseWorkspacePage({ params }: Props) {
   // Resolve the authenticated user ID (real Clerk ID when enabled, demo fallback otherwise)
   let userId = "demo_user";
   if (!isDemo && config.clerk.enabled) {
-    const { userId: clerkUserId } = auth();
+    const { userId: clerkUserId } = await auth();
     if (!clerkUserId) return notFound();
     userId = clerkUserId;
   }

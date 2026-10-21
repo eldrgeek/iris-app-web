@@ -3,7 +3,7 @@ import { createServiceClient } from "@/lib/supabase";
 import { config } from "@/lib/config";
 
 interface Props {
-  params: { courseId: string };
+  params: Promise<{ courseId: string }>;
 }
 
 export async function POST(_req: Request, { params }: Props) {
@@ -16,7 +16,7 @@ export async function POST(_req: Request, { params }: Props) {
     return NextResponse.json({ error: "Database unavailable" }, { status: 503 });
   }
 
-  const { courseId } = params;
+  const { courseId } = await params;
 
   const { error } = await supabase
     .from("courses")

@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   if (!stripe) return NextResponse.json({ error: "Stripe unavailable" }, { status: 503 });
 
   const body = await req.text();
-  const signature = headers().get("stripe-signature");
+  const signature = (await headers()).get("stripe-signature");
 
   if (!signature) {
     return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });

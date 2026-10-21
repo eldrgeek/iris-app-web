@@ -58,11 +58,11 @@ const DEMO_ARTIFACTS: CurriculumArtifact[] = [
 ];
 
 interface Props {
-  params: { courseId: string };
+  params: Promise<{ courseId: string }>;
 }
 
 export default async function GalleryCourseViewPage({ params }: Props) {
-  const { courseId } = params;
+  const { courseId } = await params;
   const isDemo = courseId === "demo-1" || !config.supabase.enabled;
 
   let course: Course | null = isDemo ? DEMO_COURSE : null;

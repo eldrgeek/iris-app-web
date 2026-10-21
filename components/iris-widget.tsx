@@ -8,8 +8,9 @@ interface IrisWidgetProps {
   remainingMinutes?: number;
 }
 
-// ElevenLabs ConvAI web component type declaration
-declare global {
+// ElevenLabs ConvAI web component type declaration (React 19 types
+// moved JSX under the "react" module, so augment it there)
+declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
       "elevenlabs-convai": React.DetailedHTMLProps<

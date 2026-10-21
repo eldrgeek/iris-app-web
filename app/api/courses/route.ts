@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 
     let userId: string;
     if (config.clerk.enabled) {
-      const { userId: clerkUserId } = auth();
+      const { userId: clerkUserId } = await auth();
       if (!clerkUserId) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
